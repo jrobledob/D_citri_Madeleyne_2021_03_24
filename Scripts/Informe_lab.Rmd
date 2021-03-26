@@ -1,0 +1,526 @@
+---
+title: "Análisis Bases de dato Laboratorio C. citri"
+author: "Madeleyne Parra Fuente"
+date: "25/3/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "D:/OneDrive - AGROSAVIA - CORPORACION COLOMBIANA DE INVESTIGACION AGROPECUARIA/R_scripts/D_citri_Madeleyne_2021_03_24/")
+```
+
+## 1. Librerías
+```{r librerias}
+#libraries----
+library(dplyr)
+library(ggplot2)
+library(agricolae)
+library(officer)
+library(rvg)
+```
+# 2. Lectura de los datos
+
+Se realiza la lectura de los datos
+
+```{r data_reading}
+#Readin Data base----
+#Field data base
+db_D_citri_lab<- read.csv2("./Data/BD Dinámica Poblacional -D. citri Caribia_Laboratorio_Actualizada_21-12-2020 (1).csv", encoding = "UTF-8")
+db_D_citri_lab<- db_D_citri_lab[-c(8833:nrow(db_D_citri_lab))]
+
+```
+
+# 3. Limpieza de los datos
+
+Se realiza la eliminación de las columnas que no tienen relevancia para el análisis. Solo quedarían "MES", "CULTIVo", "COPA", "PATRÓN", "PUNTO", "HUEVOS", "NINFAS", "ADULTO". Ninfas= sumatoria de estados ninfales. Los datos ausentes se eliminan y se definenen los factores
+
+```{r data_cleaning}
+#NIFAS column is created
+db_D_citri_lab$NINFAS<- db_D_citri_lab$NINFA.1+ db_D_citri_lab$NINFA.2+db_D_citri_lab$NINFA.3+db_D_citri_lab$NINFA.4+db_D_citri_lab$NINFA.5
+#No important columns are deleted
+db_D_citri_lab<- db_D_citri_lab[c("MES", "CULTIVO", "COPA", "PATRÓN", "PUNTO", 
+                                       "HUEVOS", "NINFAS", "ADULTO")]
+#Set factors
+#11 levels in "MES" factor. 4th month is not present
+db_D_citri_lab$MES<- as.factor(db_D_citri_lab$MES)
+#3 levels: Naranja mandarina y limón 
+db_D_citri_lab$CULTIVO<- as.factor(db_D_citri_lab$CULTIVO)
+#16 varieties
+db_D_citri_lab$COPA<- as.factor(db_D_citri_lab$COPA)
+#2 Rootstocks
+db_D_citri_lab$PATRÓN<- as.factor(db_D_citri_lab$PATRÓN)
+#4 Cardinal points
+db_D_citri_lab$PUNTO<- as.factor(db_D_citri_lab$PUNTO)
+```
+
+## 4. Estadísiticos descriptivos huevos
+
+Promedios, desviación estandar
+
+```{r descriptive_statistics}
+#Descriptive statistics----
+#Observations and distribution 
+summary(db_D_citri_lab)
+#summary statistics byb factors
+#MES
+with(db_D_citri_lab, tapply(HUEVOS, MES, function(x) {
+  sprintf("M (SD) = %1.2f (%1.2f)", mean(x), sd(x))
+}))
+#CULTIVO
+with(db_D_citri_lab, tapply(HUEVOS, CULTIVO, function(x) {
+  sprintf("M (SD) = %1.2f (%1.2f)", mean(x), sd(x))
+}))
+#COPA
+with(db_D_citri_lab, tapply(HUEVOS, COPA, function(x) {
+  sprintf("M (SD) = %1.2f (%1.2f)", mean(x), sd(x))
+}))
+#PATRÓN
+with(db_D_citri_lab, tapply(HUEVOS, PATRÓN, function(x) {
+  sprintf("M (SD) = %1.2f (%1.2f)", mean(x), sd(x))
+}))
+#PUNTO
+with(db_D_citri_lab, tapply(HUEVOS, PUNTO, function(x) {
+  sprintf("M (SD) = %1.2f (%1.2f)", mean(x), sd(x))
+  }))
+```
+
+## 5. Estadísiticos descriptivos NINFAS
+
+Promedios, desviación estandar
+
+```{r descriptive_statistics_N}
+#Descriptive statistics----
+#Observations and distribution 
+summary(db_D_citri_lab)
+#summary statistics byb factors
+#MES
+with(db_D_citri_lab, tapply(NINFAS, MES, function(x) {
+  sprintf("M (SD) = %1.2f (%1.2f)", mean(x), sd(x))
+}))
+#CULTIVO
+with(db_D_citri_lab, tapply(NINFAS, CULTIVO, function(x) {
+  sprintf("M (SD) = %1.2f (%1.2f)", mean(x), sd(x))
+}))
+#COPA
+with(db_D_citri_lab, tapply(NINFAS, COPA, function(x) {
+  sprintf("M (SD) = %1.2f (%1.2f)", mean(x), sd(x))
+}))
+#PATRÓN
+with(db_D_citri_lab, tapply(NINFAS, PATRÓN, function(x) {
+  sprintf("M (SD) = %1.2f (%1.2f)", mean(x), sd(x))
+}))
+#PUNTO
+with(db_D_citri_lab, tapply(NINFAS, PUNTO, function(x) {
+  sprintf("M (SD) = %1.2f (%1.2f)", mean(x), sd(x))
+}))
+```
+
+
+## 6. Estadísiticos descriptivos ADULTOS
+
+Promedios, desviación estandar
+
+```{r descriptive_statistics_A}
+#Descriptive statistics----
+#Observations and distribution 
+summary(db_D_citri_lab)
+#summary statistics byb factors
+#MES
+with(db_D_citri_lab, tapply(ADULTO, MES, function(x) {
+  sprintf("M (SD) = %1.2f (%1.2f)", mean(x), sd(x))
+}))
+#CULTIVO
+with(db_D_citri_lab, tapply(ADULTO, CULTIVO, function(x) {
+  sprintf("M (SD) = %1.2f (%1.2f)", mean(x), sd(x))
+}))
+#COPA
+with(db_D_citri_lab, tapply(ADULTO, COPA, function(x) {
+  sprintf("M (SD) = %1.2f (%1.2f)", mean(x), sd(x))
+}))
+#PATRÓN
+with(db_D_citri_lab, tapply(ADULTO, PATRÓN, function(x) {
+  sprintf("M (SD) = %1.2f (%1.2f)", mean(x), sd(x))
+}))
+#PUNTO
+with(db_D_citri_lab, tapply(ADULTO, PUNTO, function(x) {
+  sprintf("M (SD) = %1.2f (%1.2f)", mean(x), sd(x))
+}))
+```
+
+## 7. Prueba no paramétrica
+### Kruskal Wallis para la variable huevos en el factor MES 
+
+Se realiza el estadístico con todos los meses ya que estos si presentan la misma distribución. Es de resaltar que con esta distribución los datos pueden ajustarse a un modelo Poisson o binomial negativo
+
+
+```{r kw_month_H}
+#Non-parametric approach----
+#Boxplot MES
+ggplot(data = db_D_citri_lab, mapping = aes(x = MES, y = HUEVOS, colour = MES)) +
+  geom_boxplot() +
+  theme_bw() +
+  theme(legend.position = "none")
+#Distribution MES
+ggplot(data = db_D_citri_lab, mapping = aes(x = HUEVOS, colour = MES)) +
+  geom_histogram() +
+  theme_bw() +
+  facet_grid(. ~ MES) +
+  theme(legend.position = "none")+
+  theme(axis.text.x = element_text(angle = 45))
+#KW test group_1
+group_1_month<- kruskal(db_D_citri_lab$HUEVOS, db_D_citri_lab$MES,group=TRUE, p.adj = "bonferroni")
+group_1_month
+```
+
+### Kruskal Wallis para la variable huevos en el factor CULTIVO 
+
+Se realiza el estadístico con todos los CULTIVARES ya que estos si presentan la misma distribución. Es de resaltar que con esta distribución los datos pueden ajustarse a un modelo Poisson o binomial negativo
+
+
+```{r kw_CULTIVAR_H}
+#Non-parametric approach----
+#Boxplot CULTIVO
+ggplot(data = db_D_citri_lab, mapping = aes(x = CULTIVO, y = HUEVOS, colour = CULTIVO)) +
+  geom_boxplot() +
+  theme_bw() +
+  theme(legend.position = "none")
+#Distribution CULTIVO
+ggplot(data = db_D_citri_lab, mapping = aes(x = HUEVOS, colour = CULTIVO)) +
+  geom_histogram() +
+  theme_bw() +
+  facet_grid(. ~ CULTIVO) +
+  theme(legend.position = "none")+
+  theme(axis.text.x = element_text(angle = 45))
+
+#KW test group_1
+group_1_month<- kruskal(db_D_citri_lab$HUEVOS, db_D_citri_lab$CULTIVO,group=TRUE, p.adj = "bonferroni")
+group_1_month
+```
+
+### Kruskal Wallis para la variable huevos en el factor COPA 
+
+Se realiza el estadístico con todos lAS VARIEDADES ya que estos si presentan la misma distribución. Es de resaltar que con esta distribución los datos pueden ajustarse a un modelo Poisson o binomial negativo
+
+```{r kw_COPA_H}
+#Non-parametric approach----
+#Boxplot COPA
+ggplot(data = db_D_citri_lab, mapping = aes(x = COPA, y = HUEVOS, colour = COPA)) +
+  geom_boxplot() +
+  theme_bw() +
+  theme(legend.position = "none")
+#Distribution COPA
+ggplot(data = db_D_citri_lab, mapping = aes(x = HUEVOS, colour = COPA)) +
+  geom_histogram() +
+  theme_bw() +
+  facet_grid(. ~ COPA) +
+  theme(legend.position = "none")+
+  theme(axis.text.x = element_text(angle = 45))
+#KW test group_1
+group_1_month<- kruskal(db_D_citri_lab$HUEVOS, db_D_citri_lab$COPA,group=TRUE, p.adj = "bonferroni")
+group_1_month
+```
+
+
+### Kruskal Wallis para la variable huevos en el factor PATRÓN 
+
+Se realiza el estadístico con todos lOS PORTAINJERTOS ya que estos si presentan la misma distribución. Es de resaltar que con esta distribución los datos pueden ajustarse a un modelo Poisson o binomial negativo. El análisis se debería hacer con un Wilcoxon
+
+```{r kw_patron_H}
+#Non-parametric approach----
+#Boxplot PATRÓN
+ggplot(data = db_D_citri_lab, mapping = aes(x = PATRÓN, y = HUEVOS, colour = PATRÓN)) +
+  geom_boxplot() +
+  theme_bw() +
+  theme(legend.position = "none")
+#Distribution PATRÓN
+ggplot(data = db_D_citri_lab, mapping = aes(x = HUEVOS, colour = PATRÓN)) +
+  geom_histogram() +
+  theme_bw() +
+  facet_grid(. ~ PATRÓN) +
+  theme(legend.position = "none")+
+  theme(axis.text.x = element_text(angle = 45))
+
+#KW test group_1
+group_1_month<- kruskal(db_D_citri_lab$HUEVOS, db_D_citri_lab$PATRÓN,group=TRUE, p.adj = "bonferroni")
+group_1_month
+```
+
+
+### Kruskal Wallis para la variable huevos en el factor PUNTO 
+
+Se realiza el estadístico con todos lOS PUNTOS ya que estos si presentan la misma distribución. Es de resaltar que con esta distribución los datos pueden ajustarse a un modelo Poisson o binomial negativo. El análisis se debería hacer con un Wilcoxon
+
+```{r kw_punto_H}
+#Non-parametric approach----
+#Boxplot PUNTO
+db_D_citri_lab$PUNTO[db_D_citri_lab$PUNTO=="Este "]<- "Este"
+db_D_citri_lab$PUNTO[db_D_citri_lab$PUNTO=="Oeste "]<- "Oeste"
+ggplot(data = db_D_citri_lab, mapping = aes(x = PUNTO, y = HUEVOS, colour = PUNTO)) +
+  geom_boxplot() +
+  theme_bw() +
+  theme(legend.position = "none")
+#Distribution PUNTO
+ggplot(data = db_D_citri_lab, mapping = aes(x = HUEVOS, colour = PUNTO)) +
+  geom_histogram() +
+  theme_bw() +
+  facet_grid(. ~ PUNTO) +
+  theme(legend.position = "none")+
+  theme(axis.text.x = element_text(angle = 45))
+
+#KW test group_1
+group_1_month<- kruskal(db_D_citri_lab$HUEVOS, db_D_citri_lab$PUNTO,group=TRUE, p.adj = "bonferroni")
+group_1_month
+```
+
+### Kruskal Wallis para la variable NINFAS en el factor MES 
+
+Se realiza el estadístico con todos los meses ya que estos si presentan la misma distribución. Es de resaltar que con esta distribución los datos pueden ajustarse a un modelo Poisson o binomial negativo
+
+
+```{r kw_month_N}
+#Non-parametric approach----
+#Boxplot MES
+ggplot(data = db_D_citri_lab, mapping = aes(x = MES, y = NINFAS, colour = MES)) +
+  geom_boxplot() +
+  theme_bw() +
+  theme(legend.position = "none")
+#Distribution MES
+ggplot(data = db_D_citri_lab, mapping = aes(x = NINFAS, colour = MES)) +
+  geom_histogram() +
+  theme_bw() +
+  facet_grid(. ~ MES) +
+  theme(legend.position = "none")+
+  theme(axis.text.x = element_text(angle = 45))
+#KW test group_1
+group_1_month<- kruskal(db_D_citri_lab$NINFAS, db_D_citri_lab$MES,group=TRUE, p.adj = "bonferroni")
+group_1_month
+```
+
+### Kruskal Wallis para la variable NINFAS en el factor CULTIVO 
+
+Se realiza el estadístico con todos los CULTIVARES ya que estos si presentan la misma distribución. Es de resaltar que con esta distribución los datos pueden ajustarse a un modelo Poisson o binomial negativo
+
+
+```{r kw_CULTIVAR_N}
+#Non-parametric approach----
+#Boxplot CULTIVO
+ggplot(data = db_D_citri_lab, mapping = aes(x = CULTIVO, y = NINFAS, colour = CULTIVO)) +
+  geom_boxplot() +
+  theme_bw() +
+  theme(legend.position = "none")
+#Distribution CULTIVO
+ggplot(data = db_D_citri_lab, mapping = aes(x = NINFAS, colour = CULTIVO)) +
+  geom_histogram() +
+  theme_bw() +
+  facet_grid(. ~ CULTIVO) +
+  theme(legend.position = "none")+
+  theme(axis.text.x = element_text(angle = 45))
+
+#KW test group_1
+group_1_month<- kruskal(db_D_citri_lab$NINFAS, db_D_citri_lab$CULTIVO,group=TRUE, p.adj = "bonferroni")
+group_1_month
+```
+
+### Kruskal Wallis para la variable NINFAS en el factor COPA 
+
+Se realiza el estadístico con todos lAS VARIEDADES ya que estos si presentan la misma distribución. Es de resaltar que con esta distribución los datos pueden ajustarse a un modelo Poisson o binomial negativo
+
+```{r kw_COPA_N}
+#Non-parametric approach----
+#Boxplot COPA
+ggplot(data = db_D_citri_lab, mapping = aes(x = COPA, y = NINFAS, colour = COPA)) +
+  geom_boxplot() +
+  theme_bw() +
+  theme(legend.position = "none")
+#Distribution COPA
+ggplot(data = db_D_citri_lab, mapping = aes(x = NINFAS, colour = COPA)) +
+  geom_histogram() +
+  theme_bw() +
+  facet_grid(. ~ COPA) +
+  theme(legend.position = "none")
+
+#KW test group_1
+group_1_month<- kruskal(db_D_citri_lab$NINFAS, db_D_citri_lab$COPA,group=TRUE, p.adj = "bonferroni")
+group_1_month
+```
+
+
+### Kruskal Wallis para la variable NINFAS en el factor PATRÓN 
+
+Se realiza el estadístico con todos lOS PORTAINJERTOS ya que estos si presentan la misma distribución. Es de resaltar que con esta distribución los datos pueden ajustarse a un modelo Poisson o binomial negativo. El análisis se debería hacer con un Wilcoxon
+
+```{r kw_patron_N}
+#Non-parametric approach----
+#Boxplot PATRÓN
+ggplot(data = db_D_citri_lab, mapping = aes(x = PATRÓN, y = NINFAS, colour = PATRÓN)) +
+  geom_boxplot() +
+  theme_bw() +
+  theme(legend.position = "none")
+#Distribution PATRÓN
+ggplot(data = db_D_citri_lab, mapping = aes(x = NINFAS, colour = PATRÓN)) +
+  geom_histogram() +
+  theme_bw() +
+  facet_grid(. ~ PATRÓN) +
+  theme(legend.position = "none")+
+  theme(axis.text.x = element_text(angle = 45))
+
+#KW test group_1
+group_1_month<- kruskal(db_D_citri_lab$NINFAS, db_D_citri_lab$PATRÓN,group=TRUE, p.adj = "bonferroni")
+group_1_month
+```
+
+
+### Kruskal Wallis para la variable NINFAS en el factor PUNTO 
+
+Se realiza el estadístico con todos lOS PUNTOS ya que estos si presentan la misma distribución. Es de resaltar que con esta distribución los datos pueden ajustarse a un modelo Poisson o binomial negativo. El análisis se debería hacer con un Wilcoxon
+
+```{r kw_punto_N}
+#Non-parametric approach----
+#Boxplot PUNTO
+db_D_citri_lab$PUNTO[db_D_citri_lab$PUNTO=="Este "]<- "Este"
+db_D_citri_lab$PUNTO[db_D_citri_lab$PUNTO=="Oeste "]<- "Oeste"
+ggplot(data = db_D_citri_lab, mapping = aes(x = PUNTO, y = NINFAS, colour = PUNTO)) +
+  geom_boxplot() +
+  theme_bw() +
+  theme(legend.position = "none")
+#Distribution PUNTO
+ggplot(data = db_D_citri_lab, mapping = aes(x = NINFAS, colour = PUNTO)) +
+  geom_histogram() +
+  theme_bw() +
+  facet_grid(. ~ PUNTO) +
+  theme(legend.position = "none")+
+  theme(axis.text.x = element_text(angle = 45))
+
+#KW test group_1
+group_1_month<- kruskal(db_D_citri_lab$NINFAS, db_D_citri_lab$PUNTO,group=TRUE, p.adj = "bonferroni")
+group_1_month
+```
+
+
+### Kruskal Wallis para la variable ADULTO en el factor MES 
+
+Se realiza el estadístico con todos los meses ya que estos si presentan la misma distribución. Es de resaltar que con esta distribución los datos pueden ajustarse a un modelo Poisson o binomial negativo
+
+
+```{r kw_month_A}
+#Non-parametric approach----
+#Boxplot MES
+ggplot(data = db_D_citri_lab, mapping = aes(x = MES, y = ADULTO, colour = MES)) +
+  geom_boxplot() +
+  theme_bw() +
+  theme(legend.position = "none")
+#Distribution MES
+ggplot(data = db_D_citri_lab, mapping = aes(x = ADULTO, colour = MES)) +
+  geom_histogram() +
+  theme_bw() +
+  facet_grid(. ~ MES) +
+  theme(legend.position = "none")+
+  theme(axis.text.x = element_text(angle = 45))
+
+#KW test group_1
+group_1_month<- kruskal(db_D_citri_lab$ADULTO, db_D_citri_lab$MES,group=TRUE, p.adj = "bonferroni")
+group_1_month
+```
+
+### Kruskal Wallis para la variable ADULTO en el factor CULTIVO 
+
+Se realiza el estadístico con todos los CULTIVARES ya que estos si presentan la misma distribución. Es de resaltar que con esta distribución los datos pueden ajustarse a un modelo Poisson o binomial negativo
+
+
+```{r kw_CULTIVAR_A}
+#Non-parametric approach----
+#Boxplot CULTIVO
+ggplot(data = db_D_citri_lab, mapping = aes(x = CULTIVO, y = ADULTO, colour = CULTIVO)) +
+  geom_boxplot() +
+  theme_bw() +
+  theme(legend.position = "none")
+#Distribution CULTIVO
+ggplot(data = db_D_citri_lab, mapping = aes(x = ADULTO, colour = CULTIVO)) +
+  geom_histogram() +
+  theme_bw() +
+  facet_grid(. ~ CULTIVO) +
+  theme(legend.position = "none")+
+  theme(axis.text.x = element_text(angle = 45))
+#KW test group_1
+group_1_month<- kruskal(db_D_citri_lab$ADULTO, db_D_citri_lab$CULTIVO,group=TRUE, p.adj = "bonferroni")
+group_1_month
+```
+
+### Kruskal Wallis para la variable ADULTO en el factor COPA 
+
+Se realiza el estadístico con todos lAS VARIEDADES ya que estos si presentan la misma distribución. Es de resaltar que con esta distribución los datos pueden ajustarse a un modelo Poisson o binomial negativo
+
+```{r kw_COPA_A}
+#Non-parametric approach----
+#Boxplot COPA
+ggplot(data = db_D_citri_lab, mapping = aes(x = COPA, y = ADULTO, colour = COPA)) +
+  geom_boxplot() +
+  theme_bw() +
+  theme(legend.position = "none")
+#Distribution COPA
+ggplot(data = db_D_citri_lab, mapping = aes(x = ADULTO, colour = COPA)) +
+  geom_histogram() +
+  theme_bw() +
+  facet_grid(. ~ COPA) +
+  theme(legend.position = "none")+
+  theme(axis.text.x = element_text(angle = 45))
+
+#KW test group_1
+group_1_month<- kruskal(db_D_citri_lab$ADULTO, db_D_citri_lab$COPA,group=TRUE, p.adj = "bonferroni")
+group_1_month
+```
+
+
+### Kruskal Wallis para la variable ADULTO en el factor PATRÓN 
+
+Se realiza el estadístico con todos lOS PORTAINJERTOS ya que estos si presentan la misma distribución. Es de resaltar que con esta distribución los datos pueden ajustarse a un modelo Poisson o binomial negativo. El análisis se debería hacer con un Wilcoxon
+
+```{r kw_patron_A}
+#Non-parametric approach----
+#Boxplot PATRÓN
+ggplot(data = db_D_citri_lab, mapping = aes(x = PATRÓN, y = ADULTO, colour = PATRÓN)) +
+  geom_boxplot() +
+  theme_bw() +
+  theme(legend.position = "none")
+#Distribution PATRÓN
+ggplot(data = db_D_citri_lab, mapping = aes(x = ADULTO, colour = PATRÓN)) +
+  geom_histogram() +
+  theme_bw() +
+  facet_grid(. ~ PATRÓN) +
+  theme(legend.position = "none")+
+  theme(axis.text.x = element_text(angle = 45))
+
+#KW test group_1
+group_1_month<- kruskal(db_D_citri_lab$ADULTO, db_D_citri_lab$PATRÓN,group=TRUE, p.adj = "bonferroni")
+group_1_month
+```
+
+
+### Kruskal Wallis para la variable ADULTO en el factor PUNTO 
+
+Se realiza el estadístico con todos lOS PUNTOS ya que estos si presentan la misma distribución. Es de resaltar que con esta distribución los datos pueden ajustarse a un modelo Poisson o binomial negativo. El análisis se debería hacer con un Wilcoxon
+
+```{r kw_punto_A}
+#Non-parametric approach----
+#Boxplot PUNTO
+db_D_citri_lab$PUNTO[db_D_citri_lab$PUNTO=="Este "]<- "Este"
+db_D_citri_lab$PUNTO[db_D_citri_lab$PUNTO=="Oeste "]<- "Oeste"
+ggplot(data = db_D_citri_lab, mapping = aes(x = PUNTO, y = ADULTO, colour = PUNTO)) +
+  geom_boxplot() +
+  theme_bw() +
+  theme(legend.position = "none")
+#Distribution PUNTO
+ggplot(data = db_D_citri_lab, mapping = aes(x = ADULTO, colour = PUNTO)) +
+  geom_histogram() +
+  theme_bw() +
+  facet_grid(. ~ PUNTO) +
+  theme(legend.position = "none")+
+  theme(axis.text.x = element_text(angle = 45))
+#KW test group_1
+group_1_month<- kruskal(db_D_citri_lab$ADULTO, db_D_citri_lab$PUNTO,group=TRUE, p.adj = "bonferroni")
+group_1_month
+```
+
+
+#### Se adjunta los gráficos en Power Point
